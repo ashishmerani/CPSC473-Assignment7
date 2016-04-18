@@ -1,7 +1,7 @@
 // Client-side code                                                             
-/* jshint browser: true, jquery: true, curly: true, eqeqeq: true, forin: true, immed: true, indent: 4, l    atedef: true, newcap: true, nonew: true, quotmark: double, undef: true, unused: true, strict: true, trai    ling: true */
+/* jshint browser: true, jquery: true, curly: true, eqeqeq: true, forin: true, immed: true, indent: 4, latedef: true, newcap: true, nonew: true, quotmark: double, undef: true, unused: true, strict: true, trailing    : true */
 // Server-side code                                                             
-/* jshint node: true, curly: true, eqeqeq: true, forin: true, immed: true, indent: 4, latedef: true, new    cap: true, nonew: true, quotmark: double, undef: true, unused: true, strict: true, trailing: true */
+/* jshint node: true, curly: true, eqeqeq: true, forin: true, immed: true, indent: 4, latedef: true, newcap: true, nonew: true, quotmark: double, undef: true, unused: true, strict: true, trailing: true */
 "use strict";
 
 
@@ -24,14 +24,11 @@ var LinkSchema = new Schema({
         select: false
     }
 });
+
 // Mongoose Model definition                                                    
 var Link = mongoose.model("Link", LinkSchema);
 
-
-
 app.use(bodyParser.json());
-
-
 
 app.get("/links", function(req, res) {
     Link.find({}, "-_id", function(err, data) {
@@ -43,9 +40,11 @@ app.get("/links", function(req, res) {
     });
 });
 
+// Respond to /click/:title and redirect                                        
+
 app.get("/click/:title", function(req, res) {
     var link;
-    Link.find({
+    Link.findOne({
         title: req.params.title
     }, function(err, body) {
         if (err !== null) {
@@ -55,11 +54,10 @@ app.get("/click/:title", function(req, res) {
         } else {
             link = body.link;
             console.log(body);
-            console.log("LINk is: " + link);
-            // res.send("click is set to " + req.params.title);                          
+            console.log("LINK is: " + link);
+            // Increment the counter by 4                                           
             Link.update({
-                title: req.params.title,
-                link
+                title: req.params.title
             }, {
                 $inc: {
                     clicks: 4
@@ -74,34 +72,30 @@ app.get("/click/:title", function(req, res) {
         }
     });
 });
+
+// Respond to /links and display that exists in db                              
+
 app.post("/links", function(req, res) {
 
-    console.log(req.body);
     var newLink = new Link({
         "title": req.body.title,
         "link": req.body.link
     });
     newLink.save(function(error, result) {
-        console.log(result);
         if (error !== null) {
             console.log(error);
             res.send(error);
         } else {
-            Link.find({}, function(err, result) {
-                if (err !== null) {
-                    res.send(error);
-                }
-
-                res.json(result);
-            });
+            res.json(result);
         }
     });
 });
 
+
 var port = 3000;
 app.listen(port, function() {
     console.log("listening on http://localhost:", port);
-
+    // Connection to Mongodb                                                       
     var mongoURI = "mongodb://localhost/mydb";
     var MongoDB = mongoose.connect(mongoURI).connection;
     MongoDB.on("error", function(err) {
@@ -109,7 +103,5 @@ app.listen(port, function() {
     });
     MongoDB.once("open", function() {
         console.log("mongodb connection open");
-
-
     });
 });
