@@ -55,12 +55,12 @@ app.get("/click/:title", function(req, res) {
             link = body.link;
             console.log(body);
             console.log("LINK is: " + link);
-            // Increment the counter by 4                                           
+            // Increment the counter by 1                                           
             Link.update({
                 title: req.params.title
             }, {
                 $inc: {
-                    clicks: 4
+                    clicks: 1
                 }
             }, function(err, data) {
                 console.log(data);
